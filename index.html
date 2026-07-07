@@ -8,7 +8,7 @@
     <style>
         :root {
             --bg: #F8FAFC; --card: #FFFFFF; --primary: #1E40AF; --primary-hover: #1E3A8A;
-            --text: #0F172A; --text-muted: #64748B; --border: #E2E8F0; --danger: #DC2626; --warning: #D97706;
+            --text: #0F172A; --text-muted: #64748B; --border: #E2E8F0; --danger: #DC2626;
         }
         body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
         .lock-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
@@ -46,33 +46,19 @@
         .prob-pass { background: #DCFCE7; color: #166534; }
         .prob-wait { background: #FEF9C3; color: #854D0E; }
         .prob-none { background: #F1F5F9; color: #64748B; }
+        .badge-resign { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
         
-        /* สไตล์กลุ่มปุ่มจัดการในตาราง */
-        .action-btns { display: flex; gap: 6px; }
-        .btn-edit { background: #F1F5F9; color: var(--text); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; width: auto; border: none; cursor: pointer; }
+        .btn-edit { background: #F1F5F9; color: var(--text); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; width: auto; display: inline-block; cursor: pointer; border: none;}
         .btn-edit:hover { background: #E2E8F0; }
-        .btn-eval { background: #FEF3C7; color: var(--warning); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; width: auto; border: none; cursor: pointer; font-weight: 500; }
-        .btn-eval:hover { background: #FDE68A; }
         
         .log-list { max-height: 120px; overflow-y: auto; font-size: 0.85rem; }
         .log-item { padding: 6px 12px; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; }
         
         #sync-indicator { position: fixed; top: 12px; right: 12px; background: rgba(37, 99, 235, 0.9); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 500; display: none; z-index: 99999; }
-
-        /* 🌟 สไตล์กล่อง Modal สำหรับระบบประเมินผล */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 99999; opacity: 0; transition: opacity 0.2s; }
-        .modal-overlay.show { display: flex; opacity: 1; }
-        .eval-card { background: var(--card); padding: 25px; border-radius: 16px; width: 90%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: translateY(20px); transition: transform 0.2s; }
-        .modal-overlay.show .eval-card { transform: translateY(0); }
-        .eval-card h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .eval-card label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: var(--text-muted); font-weight: 500; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-cancel { background: #F1F5F9; color: var(--text); }
-        .btn-cancel:hover { background: #E2E8F0; }
     </style>
 </head>
 <body>
-    <div id="sync-indicator">🔄 กำลังอัปเดตข้อมูล...</div>
+    <div id="sync-indicator">🔄 กำลังซิงค์ข้อมูล...</div>
 
     <div id="lockScreen" class="lock-container">
         <div class="lock-card">
@@ -85,7 +71,7 @@
 
     <div id="appScreen" class="app-container">
         <div class="app-header">
-            <h1>Staff Management Center</h1>
+            <h1>Staff Profile & Compensation Center</h1>
             <div class="header-right">
                 <span id="userBadge" class="role-badge">กำลังยืนยัน...</span>
                 <button class="btn-logout" onclick="logOutSystem()">ออกจากระบบ 🔓</button>
@@ -96,7 +82,7 @@
             <div class="form-card">
                 <h3 id="formTitle">เพิ่มพนักงานใหม่</h3>
                 <form id="staffForm" onsubmit="saveStaff(event)">
-                    <label>ชื่อพนักงาน (คำนำหน้า ตำแหน่ง)*</label>
+                    <label>ชื่อพนักงาน*</label>
                     <input type="text" id="s_name" required placeholder="เช่น ช่าง A, ผู้ช่วย B">
                     
                     <div class="input-group">
@@ -110,13 +96,10 @@
                         </div>
                     </div>
                     
-                    <label>เงินเดือน / ฐานรายได้</label>
-                    <input type="text" id="s_salary" placeholder="เช่น 15000B">
-                    
                     <div class="input-group">
                         <div>
-                            <label>เวลาเข้างานปกติ</label>
-                            <input type="text" id="s_time" placeholder="09:00-19:00">
+                            <label>เงินเดือนเริ่มต้น</label>
+                            <input type="text" id="s_salary" placeholder="เช่น 15000B">
                         </div>
                         <div>
                             <label>วันหยุดประจำสัปดาห์</label>
@@ -124,42 +107,82 @@
                         </div>
                     </div>
                     
-                    <div style="border-top: 1px dashed var(--border); margin: 15px 0; padding-top: 15px;">
+                    <div class="input-group">
+                        <div>
+                            <label>📅 วันเริ่มงาน</label>
+                            <input type="date" id="s_start_date">
+                        </div>
+                        <div>
+                            <label>ทดลองงาน (เดือน)</label>
+                            <input type="number" id="s_probation" placeholder="เช่น 3">
+                        </div>
+                    </div>
+                    
+                    <div style="border-top: 1px dashed var(--border); margin: 12px 0; padding-top: 12px;">
                         <div class="input-group">
                             <div>
-                                <label>📅 วันเริ่มงาน</label>
-                                <input type="date" id="s_start_date">
+                                <label>📊 คะแนนประเมิน</label>
+                                <input type="text" id="s_evaluation" placeholder="เช่น ดีเยี่ยม / A+">
                             </div>
                             <div>
-                                <label>ระยะทดลองงาน (เดือน)</label>
-                                <input type="number" id="s_probation" placeholder="เช่น 3">
+                                <label>💰 ฐานปรับปรุงเงินเดือน</label>
+                                <input type="text" id="s_salary_adj" placeholder="เช่น +1,000 หรือ 16000">
                             </div>
                         </div>
-                        <label>🎁 สวัสดิการทั่วไป</label>
-                        <textarea id="s_benefits" rows="2" placeholder="สวัสดิการอื่น ๆ..."></textarea>
+                        <div class="input-group">
+                            <div>
+                                <label>🎟️ เงินโบนัส</label>
+                                <input type="text" id="s_bonus" placeholder="เช่น 5,000">
+                            </div>
+                            <div>
+                                <label>👑 หมายเหตุปรับตำแหน่ง</label>
+                                <input type="text" id="s_promotion" placeholder="เช่น เลื่อนขั้นเป็นช่างหลัก">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <label>🎁 สวัสดิการทั่วไป</label>
+                    <textarea id="s_benefits" rows="2" placeholder="สวัสดิการอื่น ๆ..."></textarea>
+
+                    <div style="border-top: 1px dashed var(--border); margin: 12px 0; padding-top: 12px;">
+                        <div class="input-group">
+                            <div>
+                                <label>สถานะการทำงาน</label>
+                                <select id="s_work_status" onchange="handleStatusChange()">
+                                    <option value="ทำงานอยู่">🟢 ทำงานอยู่</option>
+                                    <option value="ลาออก">🔴 ลาออก</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>วันที่สิ้นสุดการทำงาน</label>
+                                <input type="date" id="s_end_date" disabled>
+                            </div>
+                        </div>
                     </div>
                     
                     <button type="submit">บันทึกข้อมูลพนักงาน</button>
-                    <button type="button" onclick="resetForm()" style="background:#F1F5F9; color:#0F172A; margin-top:8px;">ล้างฟอร์ม</button>
+                    <button type="button" onclick="resetForm()" style="background:#64748B; margin-top:8px;">ล้างฟอร์ม</button>
                 </form>
             </div>
             
             <div class="list-card">
-                <h3>ทำเนียบพนักงานในระบบ</h3>
+                <h3>ทำเนียบพนักงานและการประเมินผล</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>ชื่อพนักงาน</th>
-                                <th>ตำแหน่ง</th>
-                                <th>อายุงาน (Tenure)</th>
-                                <th>สถานะโปรฯ</th>
-                                <th>สวัสดิการ</th>
+                                <th>ตำแหน่ง (ROLE)</th>
+                                <th>อายุงาน / สถานะ</th>
+                                <th>ประเมิน</th>
+                                <th>ฐานเดิม / ปรับปรุง</th>
+                                <th>โบนัส</th>
+                                <th>หมายเหตุตำแหน่ง</th>
                                 <th>จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="staffTableBody">
-                            <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">กำลังโหลดข้อมูล...</td></tr>
+                            <tr><td colspan="8" style="text-align:center; color:var(--text-muted);">กำลังโหลดข้อมูล...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -174,36 +197,12 @@
         </div>
     </div>
 
-    <div id="evalModal" class="modal-overlay">
-        <div class="eval-card">
-            <h3 id="evalTitle">⭐ ประเมินพนักงาน</h3>
-            <form id="evalForm" onsubmit="saveEvaluation(event)">
-                <label>📊 คะแนนประเมิน / ผลงาน</label>
-                <input type="text" id="e_evaluation" placeholder="เช่น ดีเยี่ยม / A+ / ผ่านเกณฑ์">
-                
-                <label>💰 ฐานปรับปรุงเงินเดือน (ถ้ามี)</label>
-                <input type="text" id="e_salary_adj" placeholder="เช่น +1,000 หรือปรับเป็น 16000">
-                
-                <label>🎟️ เงินโบนัสพิเศษ</label>
-                <input type="text" id="e_bonus" placeholder="เช่น 5,000">
-                
-                <label>👑 หมายเหตุปรับตำแหน่ง</label>
-                <input type="text" id="e_promotion" placeholder="เช่น เลื่อนขั้นเป็นช่างหลัก">
-                
-                <div class="btn-group">
-                    <button type="button" class="btn-cancel" onclick="closeEvalModal()">ยกเลิก</button>
-                    <button type="submit" style="background:var(--warning);">บันทึกการประเมิน</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbx4cnjUniOT5gtHl1LhSVdpJEPUxDzwqxIT5zWa1jlMMMxbtu2wabZwBF3bTkd_MS7LOw/exec"; // วางลิงก์ Web App ตรงนี้
+        // 🔗 วางลิงก์เว็บแอปสคริปต์ของคุณตรงนี้
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbx4cnjUniOT5gtHl1LhSVdpJEPUxDzwqxIT5zWa1jlMMMxbtu2wabZwBF3bTkd_MS7LOw/exec";
         
         let CURRENT_USER_NAME = "";
         let REFRESH_INTERVAL_ID = null;
-        let CURRENT_EVAL_STAFF = null; // ตัวแปรเก็บข้อมูลพนักงานที่กำลังถูกประเมิน
 
         function verifyAccess() {
             let pin = document.getElementById('pinInput').value;
@@ -215,11 +214,11 @@
                     document.getElementById('appScreen').style.display = 'block';
                     CURRENT_USER_NAME = res.role === 'admin' ? '🛡️ Admin' : `🤵 ${res.name}`;
                     document.getElementById('userBadge').innerText = CURRENT_USER_NAME;
-                    addLog("ล็อกอินเข้าสู่ระบบจัดการพนักงาน");
+                    addLog("ล็อกอินเข้าแดชบอร์ดจัดการพนักงาน");
                     
                     loadStaffs();
-                    // อัปเดตตารางให้ใหม่เสมอทุกๆ 15 วินาที
-                    REFRESH_INTERVAL_ID = setInterval(loadStaffs, 15000);
+                    // Auto-Sync เบื้องหลังแบบเงียบ ๆ
+                    REFRESH_INTERVAL_ID = setInterval(() => loadStaffs(true), 15000);
                 } else {
                     alert(res.msg);
                 }
@@ -233,53 +232,73 @@
                 document.getElementById('lockScreen').style.display = 'flex';
                 document.getElementById('appScreen').style.display = 'none';
                 resetForm();
-                closeEvalModal();
             }
         }
 
-        function calculateTenure(startDateStr) {
+        // 🌟 ปรับสูตรคำนวณอายุงาน หากลาออกให้นับหยุดแค่วันที่ออก
+        function calculateTenure(startDateStr, endDateStr, status) {
             if(!startDateStr || startDateStr === "undefined" || startDateStr === "-") return "-";
             let start = new Date(startDateStr);
-            let end = new Date();
+            let end = (status === 'ลาออก' && endDateStr) ? new Date(endDateStr) : new Date();
             if(isNaN(start.getTime())) return "-";
+            
             let years = end.getFullYear() - start.getFullYear();
             let months = end.getMonth() - start.getMonth();
             if (months < 0 || (months === 0 && end.getDate() < start.getDate())) { years--; months += 12; }
             if (years < 0) return "ยังไม่เริ่มงาน";
-            return `${years > 0 ? years + ' ปี ' : ''}${months} เดือน`;
+            return `${years > 0 ? years + ' ปี ' : ''}${months} ด.`;
         }
 
         function checkProbation(startDateStr, probationMonths) {
-            if(!startDateStr || !probationMonths || startDateStr === "undefined") return { text: "ไม่ระบุ", css: "prob-none" };
+            if(!startDateStr || !probationMonths || startDateStr === "undefined") return { text: "-", css: "prob-none" };
             let start = new Date(startDateStr);
             let probEnd = new Date(start.getTime());
             probEnd.setMonth(probEnd.getMonth() + parseInt(probationMonths));
-            return (new Date() >= probEnd) ? { text: "ผ่านโปรแล้ว", css: "prob-pass" } : { text: "ทดลองงาน", css: "prob-wait" };
+            return (new Date() >= probEnd) ? { text: "ผ่านโปร", css: "prob-pass" } : { text: "ทดลองงาน", css: "prob-wait" };
         }
 
-        function loadStaffs() {
-            document.getElementById('sync-indicator').style.display = 'block';
+        function handleStatusChange() {
+            let status = document.getElementById('s_work_status').value;
+            let dateInput = document.getElementById('s_end_date');
+            if(status === 'ลาออก') {
+                dateInput.disabled = false;
+            } else {
+                dateInput.disabled = true;
+                dateInput.value = "";
+            }
+        }
+
+        // เพิ่มตัวแปร isBackground ដើម្បីซิงค์แบบเงียบ ๆ ไม่ต้องขึ้นตัวหมุน
+        function loadStaffs(isBackground = false) {
+            if(!isBackground) document.getElementById('sync-indicator').style.display = 'block';
+            
             callAPI(`${GAS_URL}?action=getStaff`, function(res) {
-                document.getElementById('sync-indicator').style.display = 'none';
+                if(!isBackground) document.getElementById('sync-indicator').style.display = 'none';
+                
                 if(res.status === "success") {
                     let html = "";
                     res.data.forEach(s => {
-                        let tenure = calculateTenure(s.startDate);
-                        let prob = checkProbation(s.startDate, s.probation);
+                        let tenure = calculateTenure(s.startDate, s.endDate, s.workStatus);
+                        
+                        let statusBadge = "";
+                        if (s.workStatus === 'ลาออก') {
+                            let formattedDate = s.endDate ? new Date(s.endDate).toLocaleDateString('th-TH') : "ไม่ได้ระบุวันที่";
+                            statusBadge = `<span class="badge-probation badge-resign">ลาออกเมื่อ ${formattedDate}</span>`;
+                        } else {
+                            let prob = checkProbation(s.startDate, s.probation);
+                            statusBadge = `<span class="badge-probation ${prob.css}">${prob.text}</span>`;
+                        }
                         
                         html += `
                             <tr>
                                 <td><strong>${s.name}</strong></td>
                                 <td>${s.role || '-'}</td>
-                                <td>${tenure}</td>
-                                <td><span class="badge-probation ${prob.css}">${prob.text}</span></td>
-                                <td style="font-size:0.8rem; color:var(--text-muted); max-width:180px;">${s.benefits || '-'}</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="btn-edit" onclick='editStaff(${JSON.stringify(s).replace(/'/g, "&apos;")})'>แก้ไข</button>
-                                        <button class="btn-eval" onclick='openEvalModal(${JSON.stringify(s).replace(/'/g, "&apos;")})'>⭐ ประเมิน</button>
-                                    </div>
-                                </td>
+                                <td>${tenure} <br>${statusBadge}</td>
+                                <td style="color:#00796B; font-weight:600;">${s.evaluation || '-'}</td>
+                                <td><span style="text-decoration:line-through;color:var(--text-muted);font-size:0.8rem;">${s.salary}</span><br><span style="color:#1E40AF;font-weight:600;">${s.salaryAdj || '-'}</span></td>
+                                <td style="color:#DC2626; font-weight:600;">${s.bonus || '-'}</td>
+                                <td style="font-size:0.8rem;">${s.promotion || '-'}</td>
+                                <td><button class="btn-edit" onclick="editStaff(${JSON.stringify(s).replace(/"/g, '&quot;')})">แก้ไข</button></td>
                             </tr>
                         `;
                     });
@@ -288,40 +307,40 @@
             });
         }
 
-        // 💾 ฟังก์ชันบันทึกข้อมูลหลัก (ฟอร์มซ้าย)
         function saveStaff(e) {
             e.preventDefault();
             document.getElementById('sync-indicator').style.display = 'block';
             let name = document.getElementById('s_name').value;
             let isEditMode = document.getElementById('s_name').disabled;
             
-            // ส่งค่าประเมินเดิมกลับไปด้วยเพื่อไม่ให้โดนทับเป็นค่าว่าง
-            let evalParam = ""; let salaryAdjParam = ""; let bonusParam = ""; let promoParam = "";
-            
             let params = [
                 `name=${encodeURIComponent(name)}`,
                 `role=${encodeURIComponent(document.getElementById('s_role').value)}`,
                 `pin=${encodeURIComponent(document.getElementById('s_pin').value)}`,
                 `salary=${encodeURIComponent(document.getElementById('s_salary').value)}`,
-                `workTime=${encodeURIComponent(document.getElementById('s_time').value)}`,
                 `dayOff=${encodeURIComponent(document.getElementById('s_dayoff').value)}`,
                 `startDate=${encodeURIComponent(document.getElementById('s_start_date').value)}`,
                 `probation=${encodeURIComponent(document.getElementById('s_probation').value)}`,
-                `benefits=${encodeURIComponent(document.getElementById('s_benefits').value)}`
+                `benefits=${encodeURIComponent(document.getElementById('s_benefits').value)}`,
+                `evaluation=${encodeURIComponent(document.getElementById('s_evaluation').value)}`,
+                `salaryAdj=${encodeURIComponent(document.getElementById('s_salary_adj').value)}`,
+                `bonus=${encodeURIComponent(document.getElementById('s_bonus').value)}`,
+                `promotion=${encodeURIComponent(document.getElementById('s_promotion').value)}`,
+                `workStatus=${encodeURIComponent(document.getElementById('s_work_status').value)}`,
+                `endDate=${encodeURIComponent(document.getElementById('s_end_date').value)}`
             ].join('&');
             
             callAPI(`${GAS_URL}?action=saveStaff&${params}`, function(res) {
                 document.getElementById('sync-indicator').style.display = 'none';
                 if(res.status === "success") {
                     alert("บันทึกประวัติสำเร็จ!");
-                    addLog(isEditMode ? `อัปเดตข้อมูลพื้นฐาน [${name}]` : `เพิ่มพนักงานใหม่ [${name}]`);
+                    addLog(isEditMode ? `อัปเดตข้อมูลพนักงาน [${name}]` : `เพิ่มประวัติพนักงานใหม่ [${name}]`);
                     resetForm();
                     loadStaffs();
                 }
             });
         }
 
-        // ✏️ ฟังก์ชันดึงข้อมูลใส่ฟอร์มหลัก
         function editStaff(s) {
             document.getElementById('formTitle').innerText = "แก้ไขข้อมูล: " + s.name;
             document.getElementById('s_name').value = s.name;
@@ -329,84 +348,38 @@
             document.getElementById('s_role').value = s.role;
             document.getElementById('s_pin').value = s.pin;
             document.getElementById('s_salary').value = s.salary;
-            document.getElementById('s_time').value = s.workTime;
             document.getElementById('s_dayoff').value = s.dayOff;
+            
             if(s.startDate && s.startDate.includes('-')) {
                 document.getElementById('s_start_date').value = s.startDate.split('T')[0];
             } else { document.getElementById('s_start_date').value = ""; }
+            
             document.getElementById('s_probation').value = s.probation;
             document.getElementById('s_benefits').value = s.benefits;
+            document.getElementById('s_evaluation').value = s.evaluation;
+            document.getElementById('s_salary_adj').value = s.salaryAdj;
+            document.getElementById('s_bonus').value = s.bonus;
+            document.getElementById('s_promotion').value = s.promotion;
+            
+            document.getElementById('s_work_status').value = s.workStatus || "ทำงานอยู่";
+            handleStatusChange();
+            if(s.endDate && s.endDate.includes('-')) {
+                document.getElementById('s_end_date').value = s.endDate.split('T')[0];
+            } else { document.getElementById('s_end_date').value = ""; }
         }
 
         function resetForm() {
             document.getElementById('formTitle').innerText = "เพิ่มพนักงานใหม่";
             document.getElementById('staffForm').reset();
             document.getElementById('s_name').disabled = false;
-        }
-
-        // 🌟 🌟 ระบบประเมินผลแยกส่วน 🌟 🌟
-        
-        function openEvalModal(s) {
-            CURRENT_EVAL_STAFF = s; // เก็บอ็อบเจ็กต์พนักงานปัจจุบันไว้ในระบบ
-            document.getElementById('evalTitle').innerText = `⭐ ประเมิน: ${s.name}`;
-            document.getElementById('e_evaluation').value = s.evaluation || "";
-            document.getElementById('e_salary_adj').value = s.salaryAdj || "";
-            document.getElementById('e_bonus').value = s.bonus || "";
-            document.getElementById('e_promotion').value = s.promotion || "";
-            
-            let modal = document.getElementById('evalModal');
-            modal.classList.add('show');
-        }
-
-        function closeEvalModal() {
-            let modal = document.getElementById('evalModal');
-            modal.classList.remove('show');
-            CURRENT_EVAL_STAFF = null;
-        }
-
-        function saveEvaluation(e) {
-            e.preventDefault();
-            if(!CURRENT_EVAL_STAFF) return;
-            
-            document.getElementById('sync-indicator').style.display = 'block';
-            let s = CURRENT_EVAL_STAFF;
-            
-            // ส่งข้อมูลพื้นฐานเดิมผสมกับข้อมูลประเมินใหม่ที่กรอกในป๊อปอัป
-            let params = [
-                `name=${encodeURIComponent(s.name)}`,
-                `role=${encodeURIComponent(s.role)}`,
-                `pin=${encodeURIComponent(s.pin)}`,
-                `salary=${encodeURIComponent(s.salary)}`,
-                `workTime=${encodeURIComponent(s.workTime)}`,
-                `dayOff=${encodeURIComponent(s.dayOff)}`,
-                `startDate=${encodeURIComponent(s.startDate)}`,
-                `probation=${encodeURIComponent(s.probation)}`,
-                `benefits=${encodeURIComponent(s.benefits)}`,
-                // ส่งข้อมูลประเมินจากฟอร์ม Modal
-                `evaluation=${encodeURIComponent(document.getElementById('e_evaluation').value)}`,
-                `salaryAdj=${encodeURIComponent(document.getElementById('e_salary_adj').value)}`,
-                `bonus=${encodeURIComponent(document.getElementById('e_bonus').value)}`,
-                `promotion=${encodeURIComponent(document.getElementById('e_promotion').value)}`
-            ].join('&');
-
-            callAPI(`${GAS_URL}?action=saveStaff&${params}`, function(res) {
-                document.getElementById('sync-indicator').style.display = 'none';
-                if(res.status === "success") {
-                    alert("บันทึกการประเมินสำเร็จ!");
-                    addLog(`บันทึกผลประเมินของ [${s.name}]`);
-                    closeEvalModal();
-                    loadStaffs();
-                } else {
-                    alert("เกิดข้อผิดพลาด: " + res.msg);
-                }
-            });
+            handleStatusChange(); // เคลียร์สถานะปิดช่องวันที่ออก
         }
 
         function addLog(desc) {
             let logList = document.getElementById('logList');
             if(logList.innerHTML.includes("ยังไม่มีประวัติ")) logList.innerHTML = "";
             let timeString = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            logList.innerHTML = `<div class="log-item"><div>ผู้ทำรายการ: <span style="font-weight:600;color:var(--primary);">${CURRENT_USER_NAME}</span> ➔ <span>${desc}</span></div><div style="color:var(--text-muted);font-size:0.8rem;">⏱️ ${timeString}</div></div>` + logList.innerHTML;
+            logList.innerHTML = `<div class="log-item"><div>แอดมิน: <span style="font-weight:600;color:var(--primary);">${CURRENT_USER_NAME}</span> ➔ <span>${desc}</span></div><div style="color:var(--text-muted);font-size:0.8rem;">⏱️ ${timeString}</div></div>` + logList.innerHTML;
         }
 
         function callAPI(url, callbackName) {
